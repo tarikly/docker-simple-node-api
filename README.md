@@ -1,6 +1,6 @@
 # simple-node-api
 
-simple-node-api is part of a small tutorial about github actions and heroku ci/cd pipeline
+docker-simple-node-api is part of a small tutorial about github actions and heroku ci/cd pipeline
 
 Fix:
 
@@ -11,21 +11,31 @@ name: deploy
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
-  build:
+  deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v2
-        - uses: akhileshns/heroku-deploy@v3.12.12
-          with:
-                heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-                heroku_app_name: "you-user-login-simple-node-api"
-                heroku_email: "your-mail@adress.com"
+        - name: Login to Heroku Container Registry
+          env:
+            HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          run: heroku container:login
+        - name: Build and Push
+          env:
+            HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web
+        - name: Release
+          env: 
+            HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          run: heroku container:release -a ${{ secrets.HEROKU_APP_NAME }} web
 ```
 
 Resources: 
 
-209 - CI/CD com GitHub Actions: Deploy Automático no Heroku com Node.js | theWiseDev CI/CD [https://www.youtube.com/watch?v=jMO5L8OzlEU]
+210 - CI/CD com GitHub Actions + DOCKER | theWiseDev CI/CD [https://www.youtube.com/watch?v=jBRw_WepZGA]
 
 Tutorial step by the step - [https://like-jaw-394.notion.site/CI-CD-GitHub-Actions-Heroku-093d52e15d6f4a638f1c906e6127ec36]
+
+simple-node-api repository - [https://github.com/tarikly/simple-node-api#simple-node-api]
